@@ -53,7 +53,7 @@ export default {
     async deleteFile(fileId) {
       if (confirm("Are you sure you want to delete this file?")) {
         try {
-          await axios.delete(`/api/files/${fileId}`);
+          await axios.delete(`/api/delete?fileId=${fileId}`);
           this.loadFiles();
         } catch (error) {
           console.error("Error deleting file:", error);

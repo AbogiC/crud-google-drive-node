@@ -141,6 +141,36 @@ app.delete("/api/files/:fileId", async (req, res) => {
   }
 });
 
+// Delete file (alternative endpoint for Netlify compatibility)
+app.delete("/api/delete", async (req, res) => {
+  try {
+    const fileId = req.query.fileId;
+
+    if (!fileId) {
+      return res.status(400).json({
+        success: false,
+        message: "fileId is required",
+      });
+    }
+
+    await drive.files.delete({
+      fileId: fileId,
+    });
+
+    res.json({
+      success: true,
+      message: `File deleted successfully`,
+    });
+  } catch (error) {
+    console.error("Error deleting file:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Error deleting file",
+      error: error.message,
+    });
+  }
+});
+
 // Serve Vue app for any unmatched routes
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "frontend/dist/index.html"));

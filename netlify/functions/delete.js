@@ -24,7 +24,15 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const { fileId } = event.path.split("/").pop(); // Extract fileId from path
+    const fileId = event.queryStringParameters.fileId; // Extract fileId from query
+
+    if (!fileId) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: "fileId is required" }),
+      };
+    }
 
     const CLIENT_ID = process.env.CLIENT_ID;
     const CLIENT_SECRET = process.env.CLIENT_SECRET;

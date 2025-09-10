@@ -41,9 +41,15 @@ exports.handler = async (event, context) => {
     oauth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
     const drive = google.drive({ version: "v3", auth: oauth2Client });
 
+    // Decode body if base64
+    let body = event.body;
+    if (event.isBase64Encoded) {
+      body = Buffer.from(body, "base64").toString("binary");
+    }
+
     // Parse multipart form data
     const boundary = event.headers["content-type"].split("boundary=")[1];
-    const parts = event.body.split(`--${boundary}`);
+    const parts = body.split(`--${boundary}`);
     let fileBuffer = null;
     let fileName = "";
     let mimeType = "";

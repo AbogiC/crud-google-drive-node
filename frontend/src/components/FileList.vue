@@ -10,12 +10,27 @@
     <div v-else class="files-grid">
       <div v-for="file in files" :key="file.id" class="file-item">
         <div class="file-info">
-          <h3>{{ file.name }}</h3>
+          <h3 @click="previewFile(file)" class="file-name">{{ file.name }}</h3>
           <p>ID: {{ file.id }}</p>
         </div>
         <button @click="$emit('delete', file.id)" class="delete-btn">
           Delete
         </button>
+      </div>
+    </div>
+
+    <!-- Preview Modal -->
+    <div v-if="showPreview" class="preview-modal" @click="closePreview">
+      <div class="preview-content" @click.stop>
+        <button @click="closePreview" class="close-btn">&times;</button>
+        <h3>{{ selectedFile?.name }}</h3>
+        <iframe
+          :src="`https://drive.google.com/file/d/${selectedFile.id}/preview`"
+          width="640"
+          height="480"
+          allow="autoplay"
+        >
+        </iframe>
       </div>
     </div>
   </div>
@@ -35,6 +50,41 @@ export default {
     },
   },
   emits: ["refresh", "delete"],
+  data() {
+    return {
+      showPreview: false,
+      selectedFile: null,
+    };
+  },
+  methods: {
+    previewFile(file) {
+      this.selectedFile = file;
+      this.showPreview = true;
+    },
+    closePreview() {
+      this.showPreview = false;
+      this.selectedFile = null;
+    },
+    isImage(file) {
+      const imageExts = [
+        ".png",
+        ".jpg",
+        ".jpeg",
+        ".gif",
+        ".bmp",
+        ".webp",
+        ".svg",
+      ];
+      return imageExts.some((ext) => file.name.toLowerCase().endsWith(ext));
+    },
+    isAudio(file) {
+      const audioExts = [".mp3", ".wav", ".ogg", ".m4a", ".aac", ".flac"];
+      return audioExts.some((ext) => file.name.toLowerCase().endsWith(ext));
+    },
+    isPdf(file) {
+      return file.name.toLowerCase().endsWith(".pdf");
+    },
+  },
 };
 </script>
 
@@ -106,5 +156,62 @@ export default {
 
 .delete-btn:hover {
   background-color: #d33b2c;
+}
+
+.file-name {
+  cursor: pointer;
+  color: #007bff;
+}
+
+.file-name:hover {
+  text-decoration: underline;
+}
+
+.preview-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.preview-content {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 90%;
+  max-height: 90%;
+  overflow: auto;
+  position: relative;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: #333;
+}
+
+.preview-image img {
+  max-width: 100%;
+  max-height: 500px;
+}
+
+.preview-audio audio {
+  width: 100%;
+}
+
+.preview-pdf iframe {
+  width: 100%;
+  height: 600px;
 }
 </style>
